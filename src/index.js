@@ -6,11 +6,13 @@ const refs = {
     galleryCont: document.querySelector(`.gallery`),
 }
 
-let preFindValue = ``;
+let preFindValue = null;
 let countPage = 1;
 
 
 refs.form.addEventListener(`submit`, onSubmitFindForm);
+refs.loadMoreBt.addEventListener(`click`, onClickLoadBt);
+
 
 
 
@@ -19,15 +21,25 @@ refs.form.addEventListener(`submit`, onSubmitFindForm);
 
 function onSubmitFindForm(event) {
     event.preventDefault();
+    hideBtLoadMore();
     const value = event.currentTarget.elements.searchQuery.value;
     if(value === preFindValue) {
         searchData(value, countPage);
-        countPage += 1;
     } else {
         countPage = 1;
+        refs.galleryCont.innerHTML = ``;
         searchData(value, countPage);
     }
+    countPage += 1;
     preFindValue = value;
+    setTimeout(showBtLoadMore(), 500);
+}
+
+function onClickLoadBt() {
+  hideBtLoadMore();
+  searchData(preFindValue, countPage);
+  countPage += 1;
+  setTimeout(showBtLoadMore(), 500);
 }
 
 
@@ -71,6 +83,14 @@ function getMarkForRender(data) {
     </p>
   </div>
 </div>`}).join(``);
+}
+
+function showBtLoadMore() {
+  refs.loadMoreBt.hidden = false;
+}
+
+function hideBtLoadMore() {
+  refs.loadMoreBt.hidden = true;
 }
 
 
