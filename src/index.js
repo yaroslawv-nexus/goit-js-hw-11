@@ -1,4 +1,7 @@
 import {getImages} from "./js/pixabeyAPI.js";
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
 
 const refs = {
     form: document.querySelector(`.search-form`),
@@ -9,10 +12,9 @@ const refs = {
 let preFindValue = null;
 let countPage = 1;
 
-
 refs.form.addEventListener(`submit`, onSubmitFindForm);
 refs.loadMoreBt.addEventListener(`click`, onClickLoadBt);
-
+let lightbox = new SimpleLightbox('.gallery a', {captionsData: `alt`, captionDelay: 250,});
 
 
 
@@ -21,25 +23,45 @@ refs.loadMoreBt.addEventListener(`click`, onClickLoadBt);
 
 function onSubmitFindForm(event) {
     event.preventDefault();
-    hideBtLoadMore();
     const value = event.currentTarget.elements.searchQuery.value;
-    if(value === preFindValue) {
-        searchData(value, countPage);
-    } else {
-        countPage = 1;
-        refs.galleryCont.innerHTML = ``;
-        searchData(value, countPage);
-    }
+    if(!value){return};
+    
+    newValueSearch(value);
+   
+
     countPage += 1;
     preFindValue = value;
-    setTimeout(showBtLoadMore(), 500);
+}
+
+
+
+
+async function newValueSearch(value) {
+  hideBtLoadMore();
+
+  countPage = 1;
+  refs.galleryCont.innerHTML = ``;
+  try{
+    const resolve = await searchData(value);
+    renderGallery(resolve);
+    Notify.success(`Hooray! We found ${resolve.totalHits} images.`);
+    showBtLoadMore();
+    checkLimitHits(resolve.totalHits);} 
+    catch(e) {
+      console.log(e);
+    }
+
 }
 
 function onClickLoadBt() {
   hideBtLoadMore();
-  searchData(preFindValue, countPage);
+
+  searchData(preFindValue).then(resolve => {
+    renderGallery(resolve);
+    showBtLoadMore();
+    checkLimitHits(resolve.totalHits);
+  });
   countPage += 1;
-  setTimeout(showBtLoadMore(), 500);
 }
 
 
@@ -47,50 +69,61 @@ function onClickLoadBt() {
 
 
 
-async function searchData(searchWords, countPage) {
- try{
-    renderGallery(await getImages(searchWords, countPage));
- }   catch(error) {
-    console.log(error);
-    console.log(`Sorry, there are no images matching your search query. Please try again.`);
- }
+async function searchData(searchWords) {
+    return await getImages(searchWords, countPage);
 }
 
 
 
 function renderGallery(data) {
     refs.galleryCont.insertAdjacentHTML('beforeend', getMarkForRender(data));
+    lightbox.refresh();
 }
 
 
 function getMarkForRender(data) {
      return data.hits.map(value => {
-        return `
-        <div class="photo-card">
+        return `<div class="photo-card">
+        <a class="photo-card" href="${value.largeImageURL}">
   <img src="${value.webformatURL}" alt="${value.tags}" loading="lazy" />
+  </a>
   <div class="info">
     <p class="info-item">
-      <b>Likes:${value.likes}</b>
+      <b>Likes</b>
+      <b>${value.likes}</b>
     </p>
     <p class="info-item">
-      <b>Views:${value.views}</b>
+      <b>Views</b>
+      <b>${value.views}</b>
     </p>
     <p class="info-item">
-      <b>Comments:${value.comments}</b>
+      <b>Comments</b>
+      <b>${value.comments}</b>
     </p>
     <p class="info-item">
-      <b>Downloads:${value.downloads}</b>
+      <b>Downloads</b>
+      <b>${value.downloads}</b>
     </p>
-  </div>
-</div>`}).join(``);
+  </div></div>`}).join(``);
 }
 
 function showBtLoadMore() {
   refs.loadMoreBt.hidden = false;
+  
 }
 
 function hideBtLoadMore() {
   refs.loadMoreBt.hidden = true;
+  
+}
+
+function checkLimitHits(maxNum) {
+  const amountColl = refs.galleryCont.children.length;
+
+  if(amountColl >= maxNum) {
+    hideBtLoadMore();
+    Notify.failure("We're sorry, but you've reached the end of search results.");
+  }
 }
 
 
