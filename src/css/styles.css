@@ -1,0 +1,82 @@
+/* <div class="gallery">
+<img src="" alt="" loading="lazy" />
+<div class="info">
+  <p class="info-item">
+    <b>Likes</b>
+  </p>
+  <p class="info-item">
+    <b>Views</b>
+  </p>
+  <p class="info-item">
+    <b>Comments</b>
+  </p>
+  <p class="info-item">
+    <b>Downloads</b>
+  </p>
+</div>
+</div> */
+
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  white-space: nowrap;
+  clip-path: inset(100%);
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+}
+
+img {
+    display: block;
+    width: 320px;
+    height: 180px;
+    
+
+}
+
+.container {
+    width: 1400px;
+    padding: 0 15px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.search-form {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 25px;
+}
+
+.gallery {
+    display: flex;
+    padding-top: 20px;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.info {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    background-color: rgba(135, 206, 235, 0.3);
+    justify-content: center;
+}
+
+.info p b {
+    display: block;
+    text-align: center;
+}
+
+
+.load-more {
+  display: inline-block;
+  margin-top: 7px;
+  width: 20%;
+  background-color: rgba(135, 206, 235, 0.5);
+  border-color: blue;
+  font-size: 20px;
+}
