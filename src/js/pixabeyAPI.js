@@ -22,7 +22,7 @@ async function getImages(search, page) {
     
     if(resolve.data.hits.length === 0 || !resolve) {
         Notify.failure("Sorry, there are no images matching your search query. Please try again.");
-        return;
+        throw new Error("нічого не знайдено");
     }
    
     return resolve.data;

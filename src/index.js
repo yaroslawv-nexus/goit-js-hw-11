@@ -18,6 +18,7 @@ let countPage = 1;
 
 refs.form.addEventListener(`submit`, onSubmitFindForm);
 let lightbox = new SimpleLightbox('.gallery a', {captionsData: `alt`, captionDelay: 250,});
+
 let options = {
   root: null,
   rootMargin: "300px",
@@ -31,6 +32,7 @@ let observer = new IntersectionObserver(onLoadMoreScroll, options);
 
 function onSubmitFindForm(event) {
     event.preventDefault();
+    observer.unobserve(refs.guardScroll);
     const value = event.currentTarget.elements.searchQuery.value;
     if(!value){return};
     newValueSearch(value);
@@ -60,6 +62,7 @@ async function newValueSearch(value) {
 function onLoadMoreScroll(entries, observer) {
   entries.forEach((entry) => {
     if(entry.isIntersecting){
+      console.log("инфинити загрузка");
       searchData(preFindValue).then(resolve => {
         renderGallery(resolve);
         if(resolve.totalHits <= getLengthGallery()) {
