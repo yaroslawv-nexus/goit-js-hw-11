@@ -109,7 +109,7 @@ function getMarkForRender(data) {
 
 function showBtLoadMore() {
   refs.loadMoreBt.hidden = false;
-  
+  console.log("show");
 }
 
 function hideBtLoadMore() {
