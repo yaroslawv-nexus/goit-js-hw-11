@@ -1,22 +1,30 @@
+import './css/styles.css';
 import {getImages} from "./js/pixabeyAPI.js";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 
+
 const refs = {
     form: document.querySelector(`.search-form`),
     loadMoreBt: document.querySelector(`.load-more`),
     galleryCont: document.querySelector(`.gallery`),
+    guardScroll: document.querySelector(`.ward`),
+    
 }
 
 let preFindValue = null;
 let countPage = 1;
 
 refs.form.addEventListener(`submit`, onSubmitFindForm);
-refs.loadMoreBt.addEventListener(`click`, onClickLoadBt);
 let lightbox = new SimpleLightbox('.gallery a', {captionsData: `alt`, captionDelay: 250,});
+let options = {
+  root: null,
+  rootMargin: "300px",
+  threshold: 0,
+};
 
-
+let observer = new IntersectionObserver(onLoadMoreScroll, options);
 
 
 
@@ -25,46 +33,44 @@ function onSubmitFindForm(event) {
     event.preventDefault();
     const value = event.currentTarget.elements.searchQuery.value;
     if(!value){return};
-    
     newValueSearch(value);
-   
-
     countPage += 1;
     preFindValue = value;
 }
 
 
 
-
 async function newValueSearch(value) {
-  hideBtLoadMore();
-
   countPage = 1;
   refs.galleryCont.innerHTML = ``;
   try{
     const resolve = await searchData(value);
     renderGallery(resolve);
     Notify.success(`Hooray! We found ${resolve.totalHits} images.`);
-    showBtLoadMore();
-    checkLimitHits(resolve.totalHits);} 
+    setObserverIfNotEnd(resolve);
+    } 
     catch(e) {
       console.log(e);
     }
-
-}
-
-function onClickLoadBt() {
-  hideBtLoadMore();
-
-  searchData(preFindValue).then(resolve => {
-    renderGallery(resolve);
-    showBtLoadMore();
-    checkLimitHits(resolve.totalHits);
-  });
-  countPage += 1;
 }
 
 
+
+
+function onLoadMoreScroll(entries, observer) {
+  entries.forEach((entry) => {
+    if(entry.isIntersecting){
+      searchData(preFindValue).then(resolve => {
+        renderGallery(resolve);
+        if(resolve.totalHits <= getLengthGallery()) {
+          Notify.failure("We're sorry, but you've reached the end of search results.");
+          observer.unobserve(entry.target);
+        }
+      });
+      countPage += 1;
+    }
+  })
+}
 
 
 
@@ -107,24 +113,18 @@ function getMarkForRender(data) {
   </div></div>`}).join(``);
 }
 
-function showBtLoadMore() {
-  refs.loadMoreBt.hidden = false;
-  console.log("show");
+
+
+function getLengthGallery() {
+  return refs.galleryCont.children.length;
 }
 
-function hideBtLoadMore() {
-  refs.loadMoreBt.hidden = true;
-  
-}
 
-function checkLimitHits(maxNum) {
-  const amountColl = refs.galleryCont.children.length;
-
-  if(amountColl >= maxNum) {
-    hideBtLoadMore();
+function setObserverIfNotEnd(resolve) {
+  if(resolve.totalHits <= getLengthGallery()) {
     Notify.failure("We're sorry, but you've reached the end of search results.");
+  } else {
+    setTimeout(() => {observer.observe(refs.guardScroll)}, 500);
   }
 }
-
-
 
