@@ -9,11 +9,31 @@ img {
 }
 
 .container {
-    width: 1400px;
-    padding: 0 15px;
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
     margin: 0 auto;
     text-align: center;
-}
+  }
+  @media screen and (min-width: 480px) {
+    .container {
+      width: 426px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+  
+  @media screen and (min-width: 768px) {
+    .container {
+      width: 766px;
+    }
+  }
+  
+  @media screen and (min-width: 1200px) {
+    .container {
+      width: 1158px;
+    }
+  }
 
 .search-form {
   background-color: rgba(0, 0, 0, 0.1);
@@ -50,3 +70,4 @@ img {
   border-color: blue;
   font-size: 20px;
 }
+
